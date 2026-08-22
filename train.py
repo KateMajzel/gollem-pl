@@ -33,6 +33,7 @@ from model import GPTConfig, GPT
 # default config values designed to train a gpt2 (124M) on OpenWebText
 # I/O
 out_dir = 'out'
+seed = 1337 # ziarno losowe - zmien dla powtorek eksperymentu
 eval_interval = 2000
 log_interval = 1
 eval_iters = 200
@@ -106,7 +107,7 @@ if master_process:
         raise SystemExit(f"STOP: {out_dir}/ckpt.pt juz istnieje. Zmien out_dir, "
                          f"usun katalog albo ustaw init_from='resume'.")
     os.makedirs(out_dir, exist_ok=True)
-torch.manual_seed(1337 + seed_offset)
+torch.manual_seed(seed + seed_offset)
 torch.backends.cuda.matmul.allow_tf32 = True # allow tf32 on matmul
 torch.backends.cudnn.allow_tf32 = True # allow tf32 on cudnn
 device_type = 'cuda' if 'cuda' in device else 'cpu' # for later use in torch.autocast
