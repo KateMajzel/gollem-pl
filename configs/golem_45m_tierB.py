@@ -15,7 +15,7 @@ wandb_log = False
 wandb_run_name = 'r1-tierB-pltok'
 
 dataset = 'pl_pltok'
-batch_size = 8                   # mniejszy model -> wiekszy batch sie miesci
+batch_size = 12                  # zmierzone probe_vram: 6.8 GB peak, miesci sie
 gradient_accumulation_steps = 20
 block_size = 1024
 
