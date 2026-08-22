@@ -68,34 +68,62 @@ def get_tokenizer(spec):
     return tok, eot
 
 
+def clip_utf8(text, max_bytes):
+    """Przycina tekst do max_bytes, nie rozcinajac znaku wielobajtowego."""
+    b = text.encode("utf-8")
+    if len(b) <= max_bytes:
+        return text
+    return b[:max_bytes].decode("utf-8", errors="ignore")
+
+
 @torch.no_grad()
-def score(model, tok, eot, docs, block_size, device, is_hf):
+def score(model, tok, eot, docs, block_size, device, is_hf, max_bytes):
     """Zwraca (suma_NLL_natow, suma_bajtow, suma_tokenow).
 
+    KLUCZOWE DLA UCZCIWOSCI: przycinamy po BAJTACH, nie po tokenach.
+    Przyciecie do block_size tokenow dawaloby kazdemu modelowi INNA ilosc
+    tekstu (tokenizer PL upakowuje ~2x wiecej bajtow w token), wiec BPB
+    liczyloby sie na roznych fragmentach i porownanie byloby bez sensu.
+    max_bytes musi byc na tyle male, by zmiescic sie w kontekscie modelu
+    o NAJRZADSZYM tokenizerze (GPT-2 na PL: ~2.07 B/token).
+
     Dla kazdego dokumentu:
-      - tokenizujemy, przycinamy do block_size-1,
-      - DEKODUJEMY z powrotem i liczymy bajty TEGO tekstu (byte-level BPE jest
-        bezstratne, wiec bajty odpowiadaja dokladnie punktowanym tokenom),
-      - poprzedzamy <|endoftext|>, liczymy loss na wszystkich tokenach tresci.
+      - przycinamy tekst do max_bytes,
+      - tokenizujemy; jesli mimo to za dlugi, tniemy tokeny i przeliczamy
+        bajty przez decode (byte-level BPE jest bezstratne),
+      - poprzedzamy <|endoftext|> i liczymy NLL na wszystkich tokenach tresci.
     """
     total_nll, total_bytes, total_tokens = 0.0, 0, 0
+    n_clipped = 0
+    per_doc = []          # (indeks, nll, bajty, tokeny) — potrzebne do bootstrapu
     for i, text in enumerate(docs):
-        ids = tok.encode(text).ids[: block_size - 1]
+        text = clip_utf8(text, max_bytes)
+        ids = tok.encode(text).ids
+        if len(ids) > block_size - 1:          # awaryjnie, gdy tekst gesty
+            ids = ids[: block_size - 1]
+            text = tok.decode(ids)
+            n_clipped += 1
         if len(ids) < 2:
             continue
-        # bajty odpowiadajace faktycznie punktowanym tokenom
-        total_bytes += len(tok.decode(ids).encode("utf-8"))
+        total_bytes += len(text.encode("utf-8"))
         x = torch.tensor([[eot] + ids], dtype=torch.long, device=device)
-        logits = model(x).logits if is_hf else model(x)[0]
-        # przewidujemy pozycje 1..N na podstawie 0..N-1
-        lp = torch.log_softmax(logits[0, :-1].float(), dim=-1)
+        if is_hf:
+            logits = model(x).logits[0, :-1]
+        else:
+            # nanoGPT bez targets zwraca logity TYLKO dla ostatniej pozycji;
+            # z targets liczy pelne logity dla calej sekwencji
+            logits = model(x[:, :-1], x[:, 1:])[0][0]
+        lp = torch.log_softmax(logits.float(), dim=-1)
         tgt = x[0, 1:]
-        nll = -lp.gather(1, tgt.unsqueeze(1)).sum().item()
-        total_nll += nll
+        d_nll = -lp.gather(1, tgt.unsqueeze(1)).sum().item()
+        total_nll += d_nll
         total_tokens += tgt.numel()
+        per_doc.append((i, d_nll, len(text.encode("utf-8")), int(tgt.numel())))
         if (i + 1) % 200 == 0:
             print(f"  ... {i+1}/{len(docs)}", flush=True)
-    return total_nll, total_bytes, total_tokens
+    if n_clipped:
+        print(f"  (uwaga: {n_clipped} dok. przycietych dodatkowo po tokenach)", flush=True)
+    return total_nll, total_bytes, total_tokens, per_doc
 
 
 def report(paths):
@@ -125,6 +153,9 @@ def main():
     ap.add_argument("--tokenizer", help="tokenizer.json lub nazwa HF (dla --ckpt)")
     ap.add_argument("--label", default="run")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--max-bytes", type=int, default=1800,
+                    help="wspolny budzet bajtow na dokument; musi zmiescic sie w kontekscie "
+                         "modelu o najrzadszym tokenizerze (GPT-2 na PL ~2.07 B/tok -> 1023 tok ~ 2100 B)")
     ap.add_argument("--out-dir", default="results")
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     a = ap.parse_args()
@@ -135,7 +166,7 @@ def main():
         ap.error("podaj --eval oraz --ckpt lub --hf (albo --report)")
 
     docs = load_eval(a.eval, limit=a.limit)
-    print(f"held-out: {len(docs)} dokumentow")
+    print(f"held-out: {len(docs)} dokumentow, budzet {a.max_bytes} B/dok")
 
     if a.ckpt:
         if not a.tokenizer:
@@ -148,7 +179,7 @@ def main():
         tok, eot = get_tokenizer(a.tokenizer or a.hf)
         is_hf = True
 
-    nll, nbytes, ntok = score(model, tok, eot, docs, block, a.device, is_hf)
+    nll, nbytes, ntok, per_doc = score(model, tok, eot, docs, block, a.device, is_hf, a.max_bytes)
     bpb = nll / (math.log(2) * nbytes)
     res = {
         "label": a.label,
@@ -156,6 +187,7 @@ def main():
         "tokenizer": a.tokenizer or a.hf,
         "eval": a.eval,
         "docs": len(docs),
+        "max_bytes_per_doc": a.max_bytes,
         "bpb": bpb,
         "ppl_token": math.exp(nll / ntok),
         "bytes_per_token": nbytes / ntok,
@@ -165,8 +197,12 @@ def main():
     os.makedirs(a.out_dir, exist_ok=True)
     out = os.path.join(a.out_dir, f"{a.label}.json")
     json.dump(res, open(out, "w"), indent=2)
+    pd_out = os.path.join(a.out_dir, f"{a.label}_perdoc.json")
+    json.dump({"label": a.label, "max_bytes": a.max_bytes, "per_doc": per_doc},
+              open(pd_out, "w"))
     print(json.dumps(res, indent=2))
     print(f"-> {out}")
+    print(f"-> {pd_out}  ({len(per_doc)} dok., do bootstrapu)")
 
 
 if __name__ == "__main__":
