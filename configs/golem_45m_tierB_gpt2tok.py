@@ -20,8 +20,8 @@ wandb_log = False
 wandb_run_name = 'r2-tierB-gpt2tok'
 
 dataset = 'pl_gpt2tok'           # TEN SAM korpus, ten sam split val, inny tokenizer
-batch_size = 6
-gradient_accumulation_steps = 40
+batch_size = 12
+gradient_accumulation_steps = 20
 block_size = 1024
 
 n_layer = 8

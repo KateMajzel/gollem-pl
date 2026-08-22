@@ -16,7 +16,7 @@ wandb_run_name = 'r1-tierB-pltok'
 
 dataset = 'pl_pltok'
 batch_size = 8                   # mniejszy model -> wiekszy batch sie miesci
-gradient_accumulation_steps = 30
+gradient_accumulation_steps = 20
 block_size = 1024
 
 n_layer = 8
