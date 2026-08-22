@@ -1,0 +1,378 @@
+/home/kasia/golem-projekt/golem/train.py:199: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=(dtype == 'float16'))
+Overriding config with configs/golem_45m_tierB.py:
+# TIER B — model do ABLACJI TOKENIZERA. 8L/512 ~ 45M param, 3 GB korpusu.
+# Przy 566M tokenow optimum Chinchilli to ~28M param niezanurzeniowych,
+# wiec 45M jest wlasciwie dobrane. 110M na tym budzecie byloby niedotrenowane.
+#
+# TARGET_BYTES = 3.0e9 ; bpt = 5.3 ; tokens_per_iter = 8*30*1024 = 245_760
+#   3.0e9 / 5.3 / 245_760 = 2303  ->  max_iters = 2300   (~1 h)
+
+out_dir = 'out/r1-tierB-pltok'
+eval_interval = 200
+eval_iters = 100
+log_interval = 10
+always_save_checkpoint = False
+
+wandb_log = False
+wandb_run_name = 'r1-tierB-pltok'
+
+dataset = 'pl_pltok'
+batch_size = 12                  # zmierzone probe_vram: 6.8 GB peak, miesci sie
+gradient_accumulation_steps = 20
+block_size = 1024
+
+n_layer = 8
+n_head = 8
+n_embd = 512
+dropout = 0.0
+bias = False
+vocab_size = 32768
+
+learning_rate = 1e-3             # mniejszy model znosi wyzszy LR
+max_iters = 2970
+lr_decay_iters = 2970
+min_lr = 1e-4
+warmup_iters = 150
+weight_decay = 0.1
+beta1, beta2 = 0.9, 0.95
+grad_clip = 1.0
+
+compile = True
+dtype = 'bfloat16'
+
+tokens per iteration will be: 245,760
+found vocab_size = 32768, bytes_per_token = 4.050 (inside data/pl_pltok/meta.json)
+Initializing a new model from scratch
+number of parameters: 41.95M
+num decayed parameter tensors: 34, with 42,467,328 parameters
+num non-decayed parameter tensors: 17, with 8,704 parameters
+using fused AdamW: True
+compiling the model... (takes a ~minute)
+step 0: train loss 10.5269, val loss 10.5252
+iter 0: loss 10.5463, time 11406.38ms, mfu -100.00%, 0.00 GB
+iter 10: loss 9.7814, time 1005.56ms, mfu 23.66%, 0.01 GB
+iter 20: loss 9.2173, time 1008.80ms, mfu 23.65%, 0.02 GB
+iter 30: loss 8.4508, time 1008.51ms, mfu 23.65%, 0.03 GB
+iter 40: loss 8.2129, time 1010.66ms, mfu 23.64%, 0.04 GB
+iter 50: loss 7.9267, time 1010.89ms, mfu 23.63%, 0.05 GB
+iter 60: loss 7.3677, time 1014.85ms, mfu 23.61%, 0.06 GB
+iter 70: loss 7.5094, time 1012.94ms, mfu 23.60%, 0.07 GB
+iter 80: loss 7.4459, time 1009.53ms, mfu 23.59%, 0.08 GB
+iter 90: loss 7.1800, time 1015.12ms, mfu 23.58%, 0.09 GB
+iter 100: loss 7.0919, time 1035.71ms, mfu 23.52%, 0.10 GB
+iter 110: loss 6.9378, time 1031.20ms, mfu 23.47%, 0.11 GB
+iter 120: loss 6.6259, time 1033.28ms, mfu 23.43%, 0.12 GB
+iter 130: loss 6.3064, time 1040.27ms, mfu 23.37%, 0.13 GB
+iter 140: loss 6.3281, time 1035.83ms, mfu 23.33%, 0.14 GB
+iter 150: loss 6.4055, time 1030.80ms, mfu 23.31%, 0.15 GB
+iter 160: loss 6.5525, time 1031.69ms, mfu 23.28%, 0.16 GB
+iter 170: loss 6.3223, time 1036.57ms, mfu 23.25%, 0.17 GB
+iter 180: loss 6.0537, time 1033.59ms, mfu 23.23%, 0.18 GB
+iter 190: loss 5.9292, time 1033.07ms, mfu 23.21%, 0.19 GB
+step 200: train loss 5.9712, val loss 6.0416
+saving checkpoint to out/r1-tierB-pltok
+iter 200: loss 6.1983, time 4697.64ms, mfu 21.39%, 0.20 GB
+iter 210: loss 5.9801, time 1032.20ms, mfu 21.56%, 0.21 GB
+iter 220: loss 5.9990, time 1024.17ms, mfu 21.73%, 0.22 GB
+iter 230: loss 5.8528, time 1019.81ms, mfu 21.89%, 0.23 GB
+iter 240: loss 5.6443, time 1020.78ms, mfu 22.03%, 0.24 GB
+iter 250: loss 5.8201, time 1016.63ms, mfu 22.17%, 0.25 GB
+iter 260: loss 5.4061, time 1008.99ms, mfu 22.31%, 0.26 GB
+iter 270: loss 5.2514, time 1016.51ms, mfu 22.42%, 0.27 GB
+iter 280: loss 5.3074, time 1009.18ms, mfu 22.53%, 0.28 GB
+iter 290: loss 5.6374, time 1012.07ms, mfu 22.63%, 0.29 GB
+iter 300: loss 5.4686, time 1012.73ms, mfu 22.72%, 0.30 GB
+iter 310: loss 5.2007, time 1010.06ms, mfu 22.80%, 0.31 GB
+iter 320: loss 5.3294, time 1012.91ms, mfu 22.87%, 0.32 GB
+iter 330: loss 5.6000, time 1012.29ms, mfu 22.93%, 0.33 GB
+iter 340: loss 5.5277, time 1042.10ms, mfu 22.92%, 0.34 GB
+iter 350: loss 4.9343, time 1036.63ms, mfu 22.92%, 0.35 GB
+iter 360: loss 5.6300, time 1043.16ms, mfu 22.91%, 0.36 GB
+iter 370: loss 5.2719, time 1024.91ms, mfu 22.94%, 0.37 GB
+iter 380: loss 5.0496, time 1025.70ms, mfu 22.97%, 0.38 GB
+iter 390: loss 5.2668, time 1021.60ms, mfu 23.00%, 0.39 GB
+step 400: train loss 5.2155, val loss 5.2594
+saving checkpoint to out/r1-tierB-pltok
+iter 400: loss 4.9205, time 4629.13ms, mfu 21.21%, 0.40 GB
+iter 410: loss 5.3518, time 1025.84ms, mfu 21.41%, 0.41 GB
+iter 420: loss 5.4932, time 1008.81ms, mfu 21.63%, 0.42 GB
+iter 430: loss 5.0474, time 1023.55ms, mfu 21.79%, 0.43 GB
+iter 440: loss 4.8561, time 1021.39ms, mfu 21.94%, 0.44 GB
+iter 450: loss 4.6762, time 1027.79ms, mfu 22.06%, 0.45 GB
+iter 460: loss 5.2986, time 1022.20ms, mfu 22.18%, 0.46 GB
+iter 470: loss 4.7879, time 1026.89ms, mfu 22.28%, 0.47 GB
+iter 480: loss 4.4561, time 1036.06ms, mfu 22.35%, 0.48 GB
+iter 490: loss 4.9314, time 1022.11ms, mfu 22.44%, 0.49 GB
+iter 500: loss 4.9986, time 1021.16ms, mfu 22.53%, 0.50 GB
+iter 510: loss 4.9462, time 1021.59ms, mfu 22.60%, 0.51 GB
+iter 520: loss 4.4437, time 1022.65ms, mfu 22.67%, 0.52 GB
+iter 530: loss 5.0604, time 1022.63ms, mfu 22.73%, 0.53 GB
+iter 540: loss 4.4122, time 1024.49ms, mfu 22.78%, 0.54 GB
+iter 550: loss 4.9098, time 1028.48ms, mfu 22.81%, 0.55 GB
+iter 560: loss 4.2474, time 1027.27ms, mfu 22.85%, 0.56 GB
+iter 570: loss 4.8318, time 1024.17ms, mfu 22.89%, 0.57 GB
+iter 580: loss 4.5189, time 1018.61ms, mfu 22.93%, 0.58 GB
+iter 590: loss 4.8514, time 1023.08ms, mfu 22.97%, 0.59 GB
+step 600: train loss 4.7012, val loss 4.7184
+saving checkpoint to out/r1-tierB-pltok
+iter 600: loss 4.5289, time 4592.39ms, mfu 21.19%, 0.60 GB
+iter 610: loss 4.5572, time 1018.69ms, mfu 21.40%, 0.61 GB
+iter 620: loss 4.7236, time 1020.15ms, mfu 21.60%, 0.62 GB
+iter 630: loss 4.3520, time 1024.60ms, mfu 21.76%, 0.63 GB
+iter 640: loss 4.6074, time 1024.40ms, mfu 21.91%, 0.64 GB
+iter 650: loss 4.5974, time 1020.50ms, mfu 22.05%, 0.65 GB
+iter 660: loss 4.5732, time 1023.47ms, mfu 22.17%, 0.66 GB
+iter 670: loss 4.6833, time 1028.16ms, mfu 22.26%, 0.67 GB
+iter 680: loss 4.5615, time 1030.27ms, mfu 22.35%, 0.68 GB
+iter 690: loss 4.4502, time 1036.91ms, mfu 22.41%, 0.69 GB
+iter 700: loss 4.4856, time 1021.40ms, mfu 22.49%, 0.70 GB
+iter 710: loss 4.3500, time 1025.28ms, mfu 22.57%, 0.71 GB
+iter 720: loss 4.0586, time 1023.65ms, mfu 22.63%, 0.72 GB
+iter 730: loss 4.0711, time 1024.62ms, mfu 22.69%, 0.73 GB
+iter 740: loss 4.4716, time 1026.45ms, mfu 22.74%, 0.74 GB
+iter 750: loss 4.2058, time 1020.98ms, mfu 22.80%, 0.75 GB
+iter 760: loss 4.4509, time 1018.83ms, mfu 22.85%, 0.76 GB
+iter 770: loss 4.3128, time 1022.64ms, mfu 22.89%, 0.77 GB
+iter 780: loss 4.6521, time 1019.09ms, mfu 22.94%, 0.78 GB
+iter 790: loss 4.5592, time 1025.41ms, mfu 22.97%, 0.79 GB
+step 800: train loss 4.2511, val loss 4.3376
+saving checkpoint to out/r1-tierB-pltok
+iter 800: loss 4.2752, time 4602.73ms, mfu 21.19%, 0.80 GB
+iter 810: loss 4.1249, time 1027.72ms, mfu 21.38%, 0.81 GB
+iter 820: loss 4.5976, time 1022.75ms, mfu 21.57%, 0.82 GB
+iter 830: loss 4.4180, time 1017.94ms, mfu 21.75%, 0.83 GB
+iter 840: loss 4.2017, time 1027.69ms, mfu 21.89%, 0.84 GB
+iter 850: loss 4.4964, time 1009.53ms, mfu 22.06%, 0.85 GB
+iter 860: loss 4.1848, time 1014.53ms, mfu 22.20%, 0.86 GB
+iter 870: loss 3.9366, time 1021.70ms, mfu 22.31%, 0.87 GB
+iter 880: loss 4.0064, time 1028.80ms, mfu 22.39%, 0.88 GB
+iter 890: loss 4.3564, time 1027.98ms, mfu 22.46%, 0.89 GB
+iter 900: loss 3.6410, time 1024.77ms, mfu 22.54%, 0.90 GB
+iter 910: loss 4.1787, time 1019.59ms, mfu 22.62%, 0.91 GB
+iter 920: loss 4.5908, time 1023.71ms, mfu 22.68%, 0.92 GB
+iter 930: loss 4.3449, time 1024.00ms, mfu 22.74%, 0.93 GB
+iter 940: loss 4.3031, time 1026.42ms, mfu 22.78%, 0.94 GB
+iter 950: loss 3.7906, time 1024.06ms, mfu 22.83%, 0.95 GB
+iter 960: loss 4.5089, time 1027.94ms, mfu 22.86%, 0.96 GB
+iter 970: loss 3.7959, time 1024.43ms, mfu 22.89%, 0.97 GB
+iter 980: loss 4.3767, time 1023.49ms, mfu 22.93%, 0.98 GB
+iter 990: loss 4.1493, time 1024.33ms, mfu 22.96%, 0.99 GB
+step 1000: train loss 4.1029, val loss 4.1666
+saving checkpoint to out/r1-tierB-pltok
+iter 1000: loss 4.1062, time 4659.60ms, mfu 21.17%, 1.00 GB
+iter 1010: loss 4.0690, time 1020.81ms, mfu 21.39%, 1.01 GB
+iter 1020: loss 4.3610, time 1016.89ms, mfu 21.59%, 1.02 GB
+iter 1030: loss 4.2374, time 1029.89ms, mfu 21.74%, 1.03 GB
+iter 1040: loss 4.4387, time 1027.87ms, mfu 21.88%, 1.04 GB
+iter 1050: loss 3.8663, time 1019.21ms, mfu 22.03%, 1.05 GB
+iter 1060: loss 4.3431, time 1025.91ms, mfu 22.14%, 1.06 GB
+iter 1070: loss 3.8654, time 1024.00ms, mfu 22.25%, 1.07 GB
+iter 1080: loss 4.0605, time 1025.50ms, mfu 22.35%, 1.08 GB
+iter 1090: loss 4.0967, time 1024.90ms, mfu 22.43%, 1.09 GB
+iter 1100: loss 3.9368, time 1027.28ms, mfu 22.51%, 1.09 GB
+iter 1110: loss 3.6020, time 1023.64ms, mfu 22.58%, 1.10 GB
+iter 1120: loss 4.3379, time 1021.46ms, mfu 22.65%, 1.11 GB
+iter 1130: loss 4.0940, time 1019.53ms, mfu 22.72%, 1.12 GB
+iter 1140: loss 4.0969, time 1025.24ms, mfu 22.77%, 1.13 GB
+iter 1150: loss 4.3452, time 1021.50ms, mfu 22.82%, 1.14 GB
+iter 1160: loss 3.9888, time 1019.76ms, mfu 22.87%, 1.15 GB
+iter 1170: loss 4.4273, time 1022.09ms, mfu 22.91%, 1.16 GB
+iter 1180: loss 3.9681, time 1027.43ms, mfu 22.94%, 1.17 GB
+iter 1190: loss 4.0978, time 1023.23ms, mfu 22.97%, 1.18 GB
+step 1200: train loss 3.9617, val loss 3.9845
+saving checkpoint to out/r1-tierB-pltok
+iter 1200: loss 3.9776, time 4625.46ms, mfu 21.19%, 1.19 GB
+iter 1210: loss 3.8462, time 1021.01ms, mfu 21.40%, 1.20 GB
+iter 1220: loss 3.9833, time 1029.00ms, mfu 21.57%, 1.21 GB
+iter 1230: loss 3.7594, time 1017.49ms, mfu 21.75%, 1.22 GB
+iter 1240: loss 3.7174, time 1021.20ms, mfu 21.91%, 1.23 GB
+iter 1250: loss 3.9278, time 1023.29ms, mfu 22.04%, 1.24 GB
+iter 1260: loss 3.8917, time 1022.23ms, mfu 22.16%, 1.25 GB
+iter 1270: loss 3.0654, time 1023.99ms, mfu 22.27%, 1.26 GB
+iter 1280: loss 4.0892, time 1029.80ms, mfu 22.35%, 1.27 GB
+iter 1290: loss 3.9498, time 1026.93ms, mfu 22.44%, 1.28 GB
+iter 1300: loss 4.0773, time 1024.82ms, mfu 22.51%, 1.29 GB
+iter 1310: loss 4.3495, time 1028.60ms, mfu 22.57%, 1.30 GB
+iter 1320: loss 4.0369, time 1019.29ms, mfu 22.65%, 1.31 GB
+iter 1330: loss 3.4911, time 1018.84ms, mfu 22.72%, 1.32 GB
+iter 1340: loss 3.6928, time 1021.04ms, mfu 22.78%, 1.33 GB
+iter 1350: loss 4.0259, time 1025.80ms, mfu 22.82%, 1.34 GB
+iter 1360: loss 4.1518, time 1021.82ms, mfu 22.87%, 1.35 GB
+iter 1370: loss 3.8897, time 1039.80ms, mfu 22.87%, 1.36 GB
+iter 1380: loss 3.9308, time 1036.70ms, mfu 22.88%, 1.37 GB
+iter 1390: loss 4.0893, time 1015.65ms, mfu 22.93%, 1.38 GB
+step 1400: train loss 3.8583, val loss 3.9376
+saving checkpoint to out/r1-tierB-pltok
+iter 1400: loss 4.1924, time 4601.09ms, mfu 21.16%, 1.39 GB
+iter 1410: loss 3.9514, time 1026.00ms, mfu 21.36%, 1.40 GB
+iter 1420: loss 3.5633, time 1021.72ms, mfu 21.55%, 1.41 GB
+iter 1430: loss 3.6830, time 1022.58ms, mfu 21.72%, 1.42 GB
+iter 1440: loss 3.9060, time 1022.39ms, mfu 21.88%, 1.43 GB
+iter 1450: loss 3.7659, time 1023.74ms, mfu 22.01%, 1.44 GB
+iter 1460: loss 4.3609, time 1024.28ms, mfu 22.14%, 1.45 GB
+iter 1470: loss 3.7866, time 1028.61ms, mfu 22.23%, 1.46 GB
+iter 1480: loss 3.9300, time 1022.57ms, mfu 22.34%, 1.47 GB
+iter 1490: loss 4.0058, time 1023.53ms, mfu 22.43%, 1.48 GB
+iter 1500: loss 4.1398, time 1020.25ms, mfu 22.52%, 1.49 GB
+iter 1510: loss 3.7187, time 1023.73ms, mfu 22.59%, 1.50 GB
+iter 1520: loss 3.7399, time 1025.54ms, mfu 22.65%, 1.51 GB
+iter 1530: loss 4.0133, time 1020.72ms, mfu 22.72%, 1.52 GB
+iter 1540: loss 3.3069, time 1019.83ms, mfu 22.78%, 1.53 GB
+iter 1550: loss 3.8246, time 1028.08ms, mfu 22.81%, 1.54 GB
+iter 1560: loss 3.7796, time 1024.82ms, mfu 22.85%, 1.55 GB
+iter 1570: loss 3.6146, time 1027.22ms, mfu 22.89%, 1.56 GB
+iter 1580: loss 3.6801, time 1024.30ms, mfu 22.92%, 1.57 GB
+iter 1590: loss 3.6319, time 1020.86ms, mfu 22.96%, 1.58 GB
+step 1600: train loss 3.7932, val loss 3.8550
+saving checkpoint to out/r1-tierB-pltok
+iter 1600: loss 4.1656, time 4582.87ms, mfu 21.18%, 1.59 GB
+iter 1610: loss 3.8180, time 1022.32ms, mfu 21.39%, 1.60 GB
+iter 1620: loss 3.8222, time 1021.03ms, mfu 21.58%, 1.61 GB
+iter 1630: loss 3.8734, time 1023.30ms, mfu 21.75%, 1.62 GB
+iter 1640: loss 3.8631, time 1020.50ms, mfu 21.90%, 1.63 GB
+iter 1650: loss 3.6989, time 1024.94ms, mfu 22.04%, 1.64 GB
+iter 1660: loss 3.9430, time 1027.44ms, mfu 22.15%, 1.65 GB
+iter 1670: loss 3.9940, time 1022.22ms, mfu 22.26%, 1.66 GB
+iter 1680: loss 3.4169, time 1022.57ms, mfu 22.36%, 1.67 GB
+iter 1690: loss 4.0228, time 1018.44ms, mfu 22.46%, 1.68 GB
+iter 1700: loss 3.7142, time 1020.26ms, mfu 22.55%, 1.69 GB
+iter 1710: loss 3.5160, time 1021.40ms, mfu 22.62%, 1.70 GB
+iter 1720: loss 3.8402, time 1024.62ms, mfu 22.68%, 1.71 GB
+iter 1730: loss 3.6030, time 1017.75ms, mfu 22.75%, 1.72 GB
+iter 1740: loss 3.6619, time 1047.43ms, mfu 22.75%, 1.73 GB
+iter 1750: loss 3.3703, time 1023.37ms, mfu 22.80%, 1.74 GB
+iter 1760: loss 3.8563, time 1040.52ms, mfu 22.80%, 1.75 GB
+iter 1770: loss 3.7900, time 1029.59ms, mfu 22.83%, 1.76 GB
+iter 1780: loss 3.9807, time 1031.05ms, mfu 22.86%, 1.77 GB
+iter 1790: loss 3.6506, time 1033.00ms, mfu 22.88%, 1.78 GB
+step 1800: train loss 3.7455, val loss 3.7770
+saving checkpoint to out/r1-tierB-pltok
+iter 1800: loss 3.9603, time 4629.89ms, mfu 21.10%, 1.79 GB
+iter 1810: loss 3.8023, time 1031.89ms, mfu 21.30%, 1.80 GB
+iter 1820: loss 3.8889, time 1037.48ms, mfu 21.46%, 1.81 GB
+iter 1830: loss 3.9907, time 1037.83ms, mfu 21.61%, 1.82 GB
+iter 1840: loss 3.6225, time 1031.46ms, mfu 21.75%, 1.83 GB
+iter 1850: loss 3.7008, time 1031.03ms, mfu 21.89%, 1.84 GB
+iter 1860: loss 3.0300, time 1030.53ms, mfu 22.01%, 1.85 GB
+iter 1870: loss 3.7566, time 1032.26ms, mfu 22.11%, 1.86 GB
+iter 1880: loss 3.7138, time 1031.57ms, mfu 22.21%, 1.87 GB
+iter 1890: loss 3.9139, time 1031.92ms, mfu 22.29%, 1.88 GB
+iter 1900: loss 4.2128, time 1028.70ms, mfu 22.37%, 1.89 GB
+iter 1910: loss 3.7179, time 1030.81ms, mfu 22.44%, 1.90 GB
+iter 1920: loss 3.3859, time 1032.61ms, mfu 22.50%, 1.91 GB
+iter 1930: loss 3.5538, time 1031.10ms, mfu 22.56%, 1.92 GB
+iter 1940: loss 3.4972, time 1031.83ms, mfu 22.61%, 1.93 GB
+iter 1950: loss 3.8365, time 1034.11ms, mfu 22.65%, 1.94 GB
+iter 1960: loss 3.8533, time 1031.55ms, mfu 22.69%, 1.95 GB
+iter 1970: loss 3.3954, time 1032.06ms, mfu 22.73%, 1.96 GB
+iter 1980: loss 3.4800, time 1031.80ms, mfu 22.76%, 1.97 GB
+iter 1990: loss 3.3244, time 1030.89ms, mfu 22.79%, 1.98 GB
+step 2000: train loss 3.7292, val loss 3.7595
+saving checkpoint to out/r1-tierB-pltok
+iter 2000: loss 3.4298, time 4585.41ms, mfu 21.03%, 1.99 GB
+iter 2010: loss 3.6452, time 1013.15ms, mfu 21.28%, 2.00 GB
+iter 2020: loss 3.7877, time 1014.57ms, mfu 21.49%, 2.01 GB
+iter 2030: loss 3.6029, time 1018.07ms, mfu 21.68%, 2.02 GB
+iter 2040: loss 3.9393, time 1025.71ms, mfu 21.83%, 2.03 GB
+iter 2050: loss 3.3928, time 1013.87ms, mfu 22.00%, 2.04 GB
+iter 2060: loss 3.7974, time 1019.59ms, mfu 22.13%, 2.05 GB
+iter 2070: loss 3.8223, time 1015.38ms, mfu 22.26%, 2.06 GB
+iter 2080: loss 3.7574, time 1016.44ms, mfu 22.38%, 2.07 GB
+iter 2090: loss 3.7616, time 1010.46ms, mfu 22.49%, 2.08 GB
+iter 2100: loss 3.5260, time 1017.77ms, mfu 22.58%, 2.09 GB
+iter 2110: loss 3.8537, time 1012.64ms, mfu 22.67%, 2.10 GB
+iter 2120: loss 3.4353, time 1013.94ms, mfu 22.75%, 2.11 GB
+iter 2130: loss 3.9823, time 1015.50ms, mfu 22.82%, 2.12 GB
+iter 2140: loss 3.4070, time 1013.54ms, mfu 22.88%, 2.13 GB
+iter 2150: loss 3.7929, time 1009.18ms, mfu 22.95%, 2.14 GB
+iter 2160: loss 3.6676, time 1011.91ms, mfu 23.01%, 2.15 GB
+iter 2170: loss 3.6294, time 1013.02ms, mfu 23.06%, 2.16 GB
+iter 2180: loss 3.6734, time 1011.14ms, mfu 23.10%, 2.17 GB
+iter 2190: loss 3.3849, time 1014.93ms, mfu 23.14%, 2.18 GB
+step 2200: train loss 3.6038, val loss 3.7473
+saving checkpoint to out/r1-tierB-pltok
+iter 2200: loss 3.8351, time 4542.85ms, mfu 21.35%, 2.19 GB
+iter 2210: loss 3.8371, time 1016.55ms, mfu 21.55%, 2.20 GB
+iter 2220: loss 3.4779, time 1010.48ms, mfu 21.75%, 2.21 GB
+iter 2230: loss 4.0209, time 1013.76ms, mfu 21.92%, 2.22 GB
+iter 2240: loss 3.7782, time 1018.73ms, mfu 22.07%, 2.23 GB
+iter 2250: loss 4.0500, time 1011.62ms, mfu 22.21%, 2.24 GB
+iter 2260: loss 3.3496, time 1016.45ms, mfu 22.33%, 2.25 GB
+iter 2270: loss 3.5479, time 1017.01ms, mfu 22.44%, 2.26 GB
+iter 2280: loss 3.4974, time 1021.91ms, mfu 22.52%, 2.27 GB
+iter 2290: loss 3.4852, time 1013.82ms, mfu 22.62%, 2.28 GB
+iter 2300: loss 3.9415, time 999.40ms, mfu 22.74%, 2.29 GB
+iter 2310: loss 3.5330, time 1013.83ms, mfu 22.81%, 2.30 GB
+iter 2320: loss 3.6093, time 1010.30ms, mfu 22.88%, 2.31 GB
+iter 2330: loss 3.7409, time 1012.15ms, mfu 22.95%, 2.32 GB
+iter 2340: loss 3.4141, time 1015.89ms, mfu 22.99%, 2.33 GB
+iter 2350: loss 3.5593, time 1013.94ms, mfu 23.04%, 2.34 GB
+iter 2360: loss 3.3750, time 1013.00ms, mfu 23.08%, 2.35 GB
+iter 2370: loss 3.6338, time 1011.82ms, mfu 23.13%, 2.36 GB
+iter 2380: loss 3.7915, time 1013.45ms, mfu 23.16%, 2.37 GB
+iter 2390: loss 3.9334, time 1026.51ms, mfu 23.16%, 2.38 GB
+step 2400: train loss 3.5780, val loss 3.7171
+saving checkpoint to out/r1-tierB-pltok
+iter 2400: loss 3.5280, time 4587.12ms, mfu 21.37%, 2.39 GB
+iter 2410: loss 3.4962, time 1012.71ms, mfu 21.58%, 2.40 GB
+iter 2420: loss 3.9887, time 1014.77ms, mfu 21.77%, 2.41 GB
+iter 2430: loss 3.7071, time 1013.58ms, mfu 21.94%, 2.42 GB
+iter 2440: loss 3.5533, time 1009.67ms, mfu 22.10%, 2.43 GB
+iter 2450: loss 3.9502, time 1012.82ms, mfu 22.24%, 2.44 GB
+iter 2460: loss 4.0209, time 1009.04ms, mfu 22.37%, 2.45 GB
+iter 2470: loss 3.6051, time 1016.67ms, mfu 22.48%, 2.46 GB
+iter 2480: loss 3.6939, time 1014.83ms, mfu 22.57%, 2.47 GB
+iter 2490: loss 3.5158, time 1044.01ms, mfu 22.59%, 2.48 GB
+iter 2500: loss 3.5873, time 1021.49ms, mfu 22.66%, 2.49 GB
+iter 2510: loss 3.3494, time 1023.59ms, mfu 22.72%, 2.50 GB
+iter 2520: loss 3.8432, time 1026.45ms, mfu 22.77%, 2.51 GB
+iter 2530: loss 3.5424, time 1027.90ms, mfu 22.80%, 2.52 GB
+iter 2540: loss 3.6837, time 1013.37ms, mfu 22.87%, 2.53 GB
+iter 2550: loss 2.9870, time 1025.73ms, mfu 22.90%, 2.54 GB
+iter 2560: loss 3.8563, time 1030.34ms, mfu 22.92%, 2.55 GB
+iter 2570: loss 3.6095, time 1030.85ms, mfu 22.94%, 2.56 GB
+iter 2580: loss 3.5771, time 1022.82ms, mfu 22.97%, 2.57 GB
+iter 2590: loss 3.4781, time 1028.26ms, mfu 22.99%, 2.58 GB
+step 2600: train loss 3.6056, val loss 3.6818
+saving checkpoint to out/r1-tierB-pltok
+iter 2600: loss 3.9010, time 4614.69ms, mfu 21.20%, 2.59 GB
+iter 2610: loss 3.4943, time 1028.31ms, mfu 21.40%, 2.60 GB
+iter 2620: loss 3.5120, time 1023.74ms, mfu 21.58%, 2.61 GB
+iter 2630: loss 3.2719, time 1022.53ms, mfu 21.75%, 2.62 GB
+iter 2640: loss 3.2171, time 1023.55ms, mfu 21.90%, 2.63 GB
+iter 2650: loss 3.4372, time 1025.01ms, mfu 22.03%, 2.64 GB
+iter 2660: loss 3.6433, time 1025.12ms, mfu 22.15%, 2.65 GB
+iter 2670: loss 3.9397, time 1025.19ms, mfu 22.25%, 2.66 GB
+iter 2680: loss 3.9368, time 1018.96ms, mfu 22.36%, 2.67 GB
+iter 2690: loss 3.9617, time 1023.64ms, mfu 22.45%, 2.68 GB
+iter 2700: loss 3.7092, time 1029.57ms, mfu 22.52%, 2.69 GB
+iter 2710: loss 3.6155, time 1037.53ms, mfu 22.56%, 2.70 GB
+iter 2720: loss 3.3904, time 1038.23ms, mfu 22.59%, 2.71 GB
+iter 2730: loss 3.2489, time 1025.71ms, mfu 22.65%, 2.72 GB
+iter 2740: loss 3.7127, time 1023.87ms, mfu 22.71%, 2.73 GB
+iter 2750: loss 3.2244, time 1028.97ms, mfu 22.75%, 2.74 GB
+iter 2760: loss 3.4857, time 1024.26ms, mfu 22.80%, 2.75 GB
+iter 2770: loss 3.7299, time 1012.90ms, mfu 22.87%, 2.76 GB
+iter 2780: loss 3.4986, time 1025.92ms, mfu 22.90%, 2.77 GB
+iter 2790: loss 4.0179, time 1025.29ms, mfu 22.93%, 2.78 GB
+step 2800: train loss 3.5749, val loss 3.6622
+saving checkpoint to out/r1-tierB-pltok
+iter 2800: loss 4.1554, time 4606.56ms, mfu 21.16%, 2.79 GB
+iter 2810: loss 3.9284, time 1010.10ms, mfu 21.40%, 2.80 GB
+iter 2820: loss 3.9214, time 1022.25ms, mfu 21.58%, 2.81 GB
+iter 2830: loss 3.6192, time 1040.53ms, mfu 21.71%, 2.82 GB
+iter 2840: loss 3.5802, time 1005.64ms, mfu 21.91%, 2.83 GB
+iter 2850: loss 3.1553, time 1018.73ms, mfu 22.05%, 2.84 GB
+iter 2860: loss 3.5734, time 1031.29ms, mfu 22.15%, 2.85 GB
+iter 2870: loss 3.5694, time 1005.14ms, mfu 22.30%, 2.86 GB
+iter 2880: loss 3.6029, time 1023.79ms, mfu 22.40%, 2.87 GB
+iter 2890: loss 3.5809, time 1014.45ms, mfu 22.50%, 2.88 GB
+iter 2900: loss 3.4547, time 1013.33ms, mfu 22.60%, 2.89 GB
+iter 2910: loss 3.8345, time 1014.64ms, mfu 22.69%, 2.90 GB
+iter 2920: loss 3.4794, time 1015.33ms, mfu 22.76%, 2.91 GB
+iter 2930: loss 3.3793, time 1012.22ms, mfu 22.83%, 2.92 GB
+iter 2940: loss 3.7260, time 1012.78ms, mfu 22.90%, 2.93 GB
+iter 2950: loss 3.3170, time 1012.36ms, mfu 22.96%, 2.94 GB
+iter 2960: loss 3.9751, time 1006.99ms, mfu 23.03%, 2.95 GB
+iter 2970: loss 3.6066, time 1010.99ms, mfu 23.08%, 2.96 GB
