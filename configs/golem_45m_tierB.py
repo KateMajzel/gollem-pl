@@ -27,8 +27,8 @@ bias = False
 vocab_size = 32768
 
 learning_rate = 1e-3             # mniejszy model znosi wyzszy LR
-max_iters = 2300
-lr_decay_iters = 2300
+max_iters = 2970
+lr_decay_iters = 2970
 min_lr = 1e-4
 warmup_iters = 150
 weight_decay = 0.1

@@ -32,8 +32,8 @@ bias = False
 vocab_size = 50304               # 50257 zaokraglone w gore do wielokrotnosci 64
 
 learning_rate = 1e-3
-max_iters = 5300
-lr_decay_iters = 5300
+max_iters = 5830
+lr_decay_iters = 5830
 min_lr = 1e-4
 warmup_iters = 150
 weight_decay = 0.1
