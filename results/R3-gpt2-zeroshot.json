@@ -1,0 +1,13 @@
+{
+  "label": "R3-gpt2-zeroshot",
+  "model": "gpt2",
+  "tokenizer": "gpt2",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 2.9554746353123362,
+  "ppl_token": 79.19348816640795,
+  "bytes_per_token": 2.1341106522770126,
+  "tokens": 1296765,
+  "bytes": 2767440
+}

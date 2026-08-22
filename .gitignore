@@ -18,5 +18,5 @@ data/
 __pycache__/
 *.pyc
 out/
-results/
 hf/
+results/*_perdoc.json
