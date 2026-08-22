@@ -67,23 +67,32 @@ def main():
     hf.eval()
 
     # --- weryfikacja: logity nanoGPT vs HF ---
+    # UWAGA: porownujemy blad WZGLEDNY, nie absolutny. nanoGPT liczy uwage przez
+    # scaled_dot_product_attention (flash), HF klasycznie — inna kolejnosc operacji
+    # zmiennoprzecinkowych daje rozbieznosc rzedu 1e-4 * skala_logitow nawet przy
+    # w pelni poprawnej konwersji. Prog absolutny dawalby falszywe alarmy dla
+    # modeli wytrenowanych (duze logity). Dodatkowo sprawdzamy zgodnosc argmax,
+    # bo to ona decyduje o generacji.
     if not a.no_verify:
         try:
             from model import GPT, GPTConfig
             ng = GPT(GPTConfig(**margs))
-            ng.load_state_dict({k: v for k, v in ck["model"].items()
-                                if not k.removeprefix("_orig_mod.").endswith(".attn.bias")}
-                               if False else
-                               {k.removeprefix("_orig_mod."): v for k, v in ck["model"].items()})
+            ng.load_state_dict({k.removeprefix("_orig_mod."): v for k, v in ck["model"].items()})
             ng.eval()
-            x = torch.randint(0, margs["vocab_size"], (1, 32))
+            torch.manual_seed(0)
+            x = torch.randint(0, margs["vocab_size"], (1, 64))
             with torch.no_grad():
-                a_ = ng(x)[0][:, -1, :]
+                a_ = ng(x)[0][:, -1, :]        # nanoGPT bez targets: ostatnia pozycja
                 b_ = hf(x).logits[:, -1, :]
-            d = (a_ - b_).abs().max().item()
-            print(f"weryfikacja: max |roznica logitow| = {d:.2e}")
-            if d > 1e-3:
-                raise SystemExit("KONWERSJA NIEPOPRAWNA - sprawdz transpozycje.")
+            absd = (a_ - b_).abs().max().item()
+            scale = a_.abs().max().item()
+            rel = absd / max(scale, 1e-9)
+            top1 = (a_.argmax(-1) == b_.argmax(-1)).float().mean().item()
+            print(f"weryfikacja: blad wzgledny {rel:.2e}  (abs {absd:.2e}, skala logitow {scale:.1f}), "
+                  f"zgodnosc top-1 {top1:.3f}")
+            if rel > 1e-3 or top1 < 1.0:
+                raise SystemExit("KONWERSJA NIEPOPRAWNA — sprawdz transpozycje wag.")
+            print("  -> OK (rozbieznosc na poziomie precyzji float32)")
         except ImportError:
             print("(pominieto weryfikacje: brak model.py z nanoGPT na sciezce)")
 
