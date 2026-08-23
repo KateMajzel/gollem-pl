@@ -383,3 +383,23 @@ iter 3040: loss 1.8790, time 1253.77ms, mfu 22.24%, 1.54 GB
 iter 3050: loss 1.9373, time 1253.65ms, mfu 22.25%, 1.55 GB
 iter 3060: loss 1.7764, time 1255.39ms, mfu 22.26%, 1.55 GB
 iter 3070: loss 1.9571, time 1254.16ms, mfu 22.27%, 1.56 GB
+iter 3080: loss 1.8745, time 1257.53ms, mfu 22.27%, 1.56 GB
+iter 3090: loss 2.1934, time 1260.87ms, mfu 22.26%, 1.57 GB
+iter 3100: loss 1.9883, time 1256.40ms, mfu 22.27%, 1.57 GB
+iter 3110: loss 1.8420, time 1252.56ms, mfu 22.28%, 1.58 GB
+iter 3120: loss 2.0393, time 1254.90ms, mfu 22.28%, 1.58 GB
+iter 3130: loss 2.1496, time 1250.79ms, mfu 22.30%, 1.59 GB
+iter 3140: loss 2.0546, time 1245.90ms, mfu 22.32%, 1.59 GB
+iter 3150: loss 1.7757, time 1279.85ms, mfu 22.27%, 1.60 GB
+iter 3160: loss 2.0372, time 1261.91ms, mfu 22.27%, 1.60 GB
+iter 3170: loss 1.9421, time 1258.68ms, mfu 22.27%, 1.61 GB
+iter 3180: loss 1.8615, time 1255.34ms, mfu 22.27%, 1.61 GB
+iter 3190: loss 1.7253, time 1262.95ms, mfu 22.26%, 1.62 GB
+step 3200: train loss 1.9466, val loss 1.9783
+saving checkpoint to out/r2a-s1338
+iter 3200: loss 1.8838, time 5508.89ms, mfu 20.55%, 1.62 GB
+iter 3210: loss 2.2740, time 1274.77ms, mfu 20.69%, 1.63 GB
+iter 3220: loss 2.1107, time 1263.01ms, mfu 20.84%, 1.63 GB
+iter 3230: loss 2.1552, time 1255.57ms, mfu 20.99%, 1.64 GB
+iter 3240: loss 1.8216, time 1269.79ms, mfu 21.10%, 1.64 GB
+iter 3250: loss 1.8969, time 1272.60ms, mfu 21.19%, 1.65 GB
