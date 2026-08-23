@@ -24,3 +24,4 @@ results/*_perdoc.json
 nikos_porownanie*.md
 results_old_*/
 MODEL_CARD_final.md
+TOKENIZER_CARD.md
