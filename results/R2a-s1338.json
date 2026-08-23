@@ -1,0 +1,13 @@
+{
+  "label": "R2a-s1338",
+  "model": "out/r2a-s1338/ckpt.pt",
+  "tokenizer": "gpt2",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.1985246474268985,
+  "ppl_token": 5.888026714683749,
+  "bytes_per_token": 2.1341106522770126,
+  "tokens": 1296765,
+  "bytes": 2767440
+}

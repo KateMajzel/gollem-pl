@@ -185,12 +185,15 @@ def main():
             return print("brak wynikow")
         rows.sort(key=lambda r: (r["task"], -r["acc"]))
         w = max(len(r["label"]) for r in rows)
-        print(f"\n{'zadanie':<10} {'model':<{w}} {'acc':>7} {'acc/bajt':>9} {'acc PMI':>9} {'n':>5} {'losowo':>7}")
-        print("-" * (44 + w))
+        print(f"\n{'zadanie':<10} {'model':<{w}} {'acc':>7} {'acc/bajt':>9} {'acc PMI':>9} "
+              f"{'n':>5} {'losowo':>7} {'wiekszosc':>10}")
+        print("-" * (56 + w))
         for r in rows:
+            mb = r.get('majority_baseline')
+            mbs = f"{mb*100:>9.1f}%" if mb else f"{'—':>10}"
             print(f"{r['task']:<10} {r['label']:<{w}} {r['acc']*100:>6.1f}% "
                   f"{r['acc_norm']*100:>8.1f}% {r.get('acc_pmi',0)*100:>8.1f}% "
-                  f"{r['n']:>5} {100/r['n_choices']:>6.1f}%")
+                  f"{r['n']:>5} {100/r['n_choices']:>6.1f}% {mbs}")
         print("\nPMI = najuczciwsza miedzy tokenizerami (usuwa obciazenie dlugoscia etykiety).")
         return
 
@@ -199,7 +202,14 @@ def main():
 
     print(f"zadanie: {a.task}")
     items, choices = load_task(a.task, a.n, a.seed, a.max_bytes)
+    import collections as _c
+    dist = _c.Counter(g for _, g in items)
+    maj_lab, maj_n = dist.most_common(1)[0]
+    majority = maj_n / len(items)
     print(f"  pozycji do oceny: {len(items)}, klas: {len(choices)}")
+    print(f"  rozklad klas: {dict(dist)}")
+    print(f"  LINIA BAZOWA klasy wiekszosciowej ({maj_lab}): {majority*100:.1f}% "
+          f"— to jest prog, nie {100/len(choices):.1f}%")
 
     if a.ckpt:
         if not a.tokenizer:
@@ -214,9 +224,14 @@ def main():
     # Usuwa obciazenie wynikajace z tego, ze etykiety maja rozna dlugosc tokenowa
     # i rozna czestosc w korpusie. To wazne przy porownywaniu ROZNYCH tokenizerow:
     # "pozytywny" to 1 token u tokenizera PL, ale kilka u GPT-2.
-    NEUTRAL = "Odpowiedź:"
+    # PMI WARUNKOWA DOMENOWO (Holtzman i in. 2021, "Surface Form Competition").
+    # Baza to TEN SAM szablon z pusta trescia — nie neutralne "Odpowiedz:".
+    # Kontekst spoza domeny daje bledna korekte: wyniki spadaja PONIZEJ poziomu
+    # losowego, bo odejmujemy rozklad, ktory nie ma zwiazku z zadaniem.
+    NEUTRAL = TASKS[a.task]["template"].format(text="").strip()
     base = {c: choice_logprob(model, tok, eot, NEUTRAL, c, block, a.device, is_hf)[0]
             for c in choices}
+    print(f"  kontekst bazowy PMI: {NEUTRAL!r}")
     print("  bazowe logprob etykiet (im blizej siebie, tym mniejsze obciazenie):")
     for c, v in base.items():
         print(f"    {c:<18} {v:8.3f}  ({len(tok.encode(' '+c).ids)} tok.)")
@@ -240,14 +255,15 @@ def main():
            "tokenizer": a.tokenizer or a.hf, "n": len(items), "n_choices": len(choices),
            "acc": ok / len(items), "acc_norm": ok_norm / len(items),
            "acc_pmi": ok_pmi / len(items),
-           "random_baseline": 1 / len(choices), "max_bytes": a.max_bytes,
+           "random_baseline": 1 / len(choices), "majority_baseline": majority,
+           "majority_label": maj_lab, "max_bytes": a.max_bytes,
            "per_item": per_item}
     os.makedirs(a.out_dir, exist_ok=True)
     out = os.path.join(a.out_dir, f"{a.task}_{a.label}.json")
     json.dump(res, open(out, "w"), ensure_ascii=False, indent=2)
     print(f"\n{a.label} / {a.task}:  acc = {res['acc']*100:.1f}%   "
           f"acc(bajt) = {res['acc_norm']*100:.1f}%   acc(PMI) = {res['acc_pmi']*100:.1f}%   "
-          f"(losowo {res['random_baseline']*100:.1f}%)")
+          f"(losowo {res['random_baseline']*100:.1f}%, wiekszosciowa {majority*100:.1f}%)")
     print(f"-> {out}")
 
 

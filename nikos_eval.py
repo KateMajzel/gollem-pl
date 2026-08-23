@@ -62,11 +62,19 @@ def ref_nll(model, tok, eot, prompt, reference, device, is_hf):
 
 
 @torch.no_grad()
-def generate(model, tok, eot, prompt, device, is_hf, max_new=40, temp=0.8, top_k=50, seed=0):
+def generate(model, tok, eot, prompt, device, is_hf, max_bytes=180, temp=0.8,
+             top_k=50, seed=0, hard_cap=400):
+    """Generuje do MAX_BYTES bajtow, nie do max_new TOKENOW.
+
+    Limit tokenowy dawalby kazdemu modelowi inna ilosc tekstu (tokenizer PL
+    ~2.4x wiecej bajtow na token), wiec porownanie wzrokowe bylo by nieuczciwe
+    — model o rzadszym tokenizerze urywalby sie w polowie zdania. To ten sam
+    blad, ktory przy BPB rozwiazujemy budzetem bajtowym.
+    """
     torch.manual_seed(seed)
     ids = [eot] + tok.encode(prompt).ids
     x = torch.tensor([ids], dtype=torch.long, device=device)
-    for _ in range(max_new):
+    for _ in range(hard_cap):
         logits = model(x).logits[:, -1, :] if is_hf else model(x)[0][:, -1, :]
         logits = logits.float() / temp
         v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
@@ -75,6 +83,8 @@ def generate(model, tok, eot, prompt, device, is_hf, max_new=40, temp=0.8, top_k
         if int(nxt) == eot:
             break
         x = torch.cat([x, nxt], dim=1)
+        if len(tok.decode(x[0, len(ids):].tolist()).encode("utf-8")) >= max_bytes:
+            break
     return tok.decode(x[0, len(ids):].tolist())
 
 
@@ -86,7 +96,8 @@ def main():
     ap.add_argument("--hf-model", action="append", default=[],
                     help="NAZWA=id_lub_sciezka  (HuggingFace)")
     ap.add_argument("--out", default="nikos_porownanie.md")
-    ap.add_argument("--max-new", type=int, default=40)
+    ap.add_argument("--max-bytes-gen", type=int, default=180,
+                    help="budzet BAJTOW na kontynuacje — wspolny dla wszystkich modeli")
     ap.add_argument("--temp", type=float, default=0.8)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
@@ -120,7 +131,7 @@ def main():
             nll, nb, nt = ref_nll(model, tok, eot, it["prompt"], it["reference"], a.device, is_hf)
             tot_nll += nll; tot_b += nb; tot_t += nt
             outs.append(generate(model, tok, eot, it["prompt"], a.device, is_hf,
-                                 a.max_new, a.temp, seed=a.seed))
+                                 a.max_bytes_gen, a.temp, seed=a.seed))
         bpb = tot_nll / (math.log(2) * tot_b)
         results[name] = {"bpb_ref": bpb, "bytes": tot_b, "tokens": tot_t,
                          "bytes_per_token": tot_b / tot_t}
@@ -142,6 +153,8 @@ def main():
                 f"— identycznych dla wszystkich modeli.\n\n")
         f.write("## 2. Ilustracja: wygenerowane kontynuacje\n\n")
         f.write("**To nie jest metryka.** Służy sprawdzeniu, czy różnice z punktu 1 są widoczne.\n\n")
+        f.write(f"Każda kontynuacja ma wspólny budżet ~{a.max_bytes_gen} bajtów "
+                f"(nie tokenów — limit tokenowy dałby modelom różną ilość tekstu).\n\n")
         for i, it in enumerate(items):
             f.write(f"### {i+1}. `{it['prompt']}`\n\n")
             f.write(f"- **oryginał** — {it['reference']}\n")

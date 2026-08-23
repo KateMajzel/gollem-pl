@@ -1,0 +1,239 @@
+=== sprawdzam, czy wszystkie checkpointy istnieja ===
+  OK   r1-tierB-pltok
+  OK   r1-s1338
+  OK   r1-s1339
+  OK   r2-tierB-gpt2tok
+  OK   r2a-s1338
+  OK   r2a-s1339
+  OK   r2b-tierB-gpt2tok-eqtok
+
+=== archiwizuje stare wyniki ===
+
+=== 1/3  BPB na held-oucie (7 modeli) ===
+held-out: 1999 dokumentow, budzet 1800 B/dok
+number of parameters: 41.95M
+  ... 200/1999
+  ... 400/1999
+  ... 600/1999
+  ... 800/1999
+  ... 1000/1999
+  ... 1200/1999
+  ... 1400/1999
+  ... 1600/1999
+  ... 1800/1999
+{
+  "label": "R1-s1337",
+  "model": "out/r1-tierB-pltok/ckpt.pt",
+  "tokenizer": "tokenizer.json",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.2042743865520569,
+  "ppl_token": 30.71050807628954,
+  "bytes_per_token": 4.102603634681724,
+  "tokens": 674557,
+  "bytes": 2767440
+}
+-> results/R1-s1337.json
+-> results/R1-s1337_perdoc.json  (1999 dok., do bootstrapu)
+held-out: 1999 dokumentow, budzet 1800 B/dok
+number of parameters: 41.95M
+  ... 200/1999
+  ... 400/1999
+  ... 600/1999
+  ... 800/1999
+  ... 1000/1999
+  ... 1200/1999
+  ... 1400/1999
+  ... 1600/1999
+  ... 1800/1999
+{
+  "label": "R1-s1338",
+  "model": "out/r1-s1338/ckpt.pt",
+  "tokenizer": "tokenizer.json",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.2071883363519031,
+  "ppl_token": 30.966045613590946,
+  "bytes_per_token": 4.102603634681724,
+  "tokens": 674557,
+  "bytes": 2767440
+}
+-> results/R1-s1338.json
+-> results/R1-s1338_perdoc.json  (1999 dok., do bootstrapu)
+held-out: 1999 dokumentow, budzet 1800 B/dok
+number of parameters: 41.95M
+  ... 200/1999
+  ... 400/1999
+  ... 600/1999
+  ... 800/1999
+  ... 1000/1999
+  ... 1200/1999
+  ... 1400/1999
+  ... 1600/1999
+  ... 1800/1999
+{
+  "label": "R1-s1339",
+  "model": "out/r1-s1339/ckpt.pt",
+  "tokenizer": "tokenizer.json",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.2228380249590847,
+  "ppl_token": 32.375256680145505,
+  "bytes_per_token": 4.102603634681724,
+  "tokens": 674557,
+  "bytes": 2767440
+}
+-> results/R1-s1339.json
+-> results/R1-s1339_perdoc.json  (1999 dok., do bootstrapu)
+held-out: 1999 dokumentow, budzet 1800 B/dok
+number of parameters: 50.91M
+  ... 200/1999
+  ... 400/1999
+  ... 600/1999
+  ... 800/1999
+  ... 1000/1999
+  ... 1200/1999
+  ... 1400/1999
+  ... 1600/1999
+  ... 1800/1999
+{
+  "label": "R2a-s1337",
+  "model": "out/r2-tierB-gpt2tok/ckpt.pt",
+  "tokenizer": "gpt2",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.1918254854062913,
+  "ppl_token": 5.829965977040716,
+  "bytes_per_token": 2.1341106522770126,
+  "tokens": 1296765,
+  "bytes": 2767440
+}
+-> results/R2a-s1337.json
+-> results/R2a-s1337_perdoc.json  (1999 dok., do bootstrapu)
+held-out: 1999 dokumentow, budzet 1800 B/dok
+number of parameters: 50.91M
+  ... 200/1999
+  ... 400/1999
+  ... 600/1999
+  ... 800/1999
+  ... 1000/1999
+  ... 1200/1999
+  ... 1400/1999
+  ... 1600/1999
+  ... 1800/1999
+{
+  "label": "R2a-s1338",
+  "model": "out/r2a-s1338/ckpt.pt",
+  "tokenizer": "gpt2",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.1985246474268985,
+  "ppl_token": 5.888026714683749,
+  "bytes_per_token": 2.1341106522770126,
+  "tokens": 1296765,
+  "bytes": 2767440
+}
+-> results/R2a-s1338.json
+-> results/R2a-s1338_perdoc.json  (1999 dok., do bootstrapu)
+held-out: 1999 dokumentow, budzet 1800 B/dok
+number of parameters: 50.91M
+  ... 200/1999
+  ... 400/1999
+  ... 600/1999
+  ... 800/1999
+  ... 1000/1999
+  ... 1200/1999
+  ... 1400/1999
+  ... 1600/1999
+  ... 1800/1999
+{
+  "label": "R2a-s1339",
+  "model": "out/r2a-s1339/ckpt.pt",
+  "tokenizer": "gpt2",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.1934214093271434,
+  "ppl_token": 5.843745473126956,
+  "bytes_per_token": 2.1341106522770126,
+  "tokens": 1296765,
+  "bytes": 2767440
+}
+-> results/R2a-s1339.json
+-> results/R2a-s1339_perdoc.json  (1999 dok., do bootstrapu)
+held-out: 1999 dokumentow, budzet 1800 B/dok
+number of parameters: 50.91M
+  ... 200/1999
+  ... 400/1999
+  ... 600/1999
+  ... 800/1999
+  ... 1000/1999
+  ... 1200/1999
+  ... 1400/1999
+  ... 1600/1999
+  ... 1800/1999
+{
+  "label": "R2b-s1337",
+  "model": "out/r2b-tierB-gpt2tok-eqtok/ckpt.pt",
+  "tokenizer": "gpt2",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.2756042044784046,
+  "ppl_token": 6.599151417974668,
+  "bytes_per_token": 2.1341106522770126,
+  "tokens": 1296765,
+  "bytes": 2767440
+}
+-> results/R2b-s1337.json
+-> results/R2b-s1337_perdoc.json  (1999 dok., do bootstrapu)
+held-out: 1999 dokumentow, budzet 1800 B/dok
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]Loading weights:  52%|█████▏    | 77/148 [00:00<00:00, 769.87it/s]Loading weights: 100%|██████████| 148/148 [00:00<00:00, 1321.41it/s]
+  ... 200/1999
+  ... 400/1999
+  ... 600/1999
+  ... 800/1999
+  ... 1000/1999
+  ... 1200/1999
+  ... 1400/1999
+  ... 1600/1999
+  ... 1800/1999
+{
+  "label": "R3-gpt2-zeroshot",
+  "model": "gpt2",
+  "tokenizer": "gpt2",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 2.9554746353123362,
+  "ppl_token": 79.19348816640795,
+  "bytes_per_token": 2.1341106522770126,
+  "tokens": 1296765,
+  "bytes": 2767440
+}
+-> results/R3-gpt2-zeroshot.json
+-> results/R3-gpt2-zeroshot_perdoc.json  (1999 dok., do bootstrapu)
+
+=== KONTROLA: pole 'bytes' musi byc identyczne we wszystkich plikach ===
+  "bytes": 2767440
+(jesli powyzej jest wiecej niz JEDNA linia — porownanie jest niewazne)
+
+=== 2/3  tabela zbiorcza ===
+Traceback (most recent call last):
+  File "/home/kasia/golem-projekt/golem/eval_bpb.py", line 209, in <module>
+    main()
+    ~~~~^^
+  File "/home/kasia/golem-projekt/golem/eval_bpb.py", line 164, in main
+    return report(a.report)
+  File "/home/kasia/golem-projekt/golem/eval_bpb.py", line 136, in report
+    rows.sort(key=lambda r: r["bpb"])
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kasia/golem-projekt/golem/eval_bpb.py", line 136, in <lambda>
+    rows.sort(key=lambda r: r["bpb"])
+                            ~^^^^^^^
+KeyError: 'bpb'

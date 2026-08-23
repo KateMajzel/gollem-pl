@@ -21,3 +21,5 @@ out/
 hf/
 results/*_perdoc.json
 *:Zone.Identifier
+nikos_porownanie*.md
+results_old_*/

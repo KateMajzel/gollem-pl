@@ -1,0 +1,13 @@
+{
+  "label": "R2a-s1337",
+  "model": "out/r2-tierB-gpt2tok/ckpt.pt",
+  "tokenizer": "gpt2",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.1918254854062913,
+  "ppl_token": 5.829965977040716,
+  "bytes_per_token": 2.1341106522770126,
+  "tokens": 1296765,
+  "bytes": 2767440
+}

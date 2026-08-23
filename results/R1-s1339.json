@@ -1,0 +1,13 @@
+{
+  "label": "R1-s1339",
+  "model": "out/r1-s1339/ckpt.pt",
+  "tokenizer": "tokenizer.json",
+  "eval": "data/heldout.jsonl",
+  "docs": 1999,
+  "max_bytes_per_doc": 1800,
+  "bpb": 1.2228380249590847,
+  "ppl_token": 32.375256680145505,
+  "bytes_per_token": 4.102603634681724,
+  "tokens": 674557,
+  "bytes": 2767440
+}
