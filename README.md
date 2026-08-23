@@ -3,7 +3,7 @@
 Kontrolowany eksperyment: **czy dedykowany tokenizer polski daje lepszy model językowy
 niż tokenizer GPT-2, przy tym samym budżecie treningowym?**
 
-Model: [KateMajzel/GoLLeM-45M-PL](https://huggingface.co/KateMajzel/GoLLeM-45M-PL) ·
+Model: [KateMajzel/GoLLeM-45M-PL](https://huggingface.co/KateMajzel/GoLLeM-45M-PL) · Tokenizer: [KateMajzel/tokenizer-pl-32k](https://huggingface.co/KateMajzel/tokenizer-pl-32k) ·
 Sprzęt: 1× RTX 5080 (16 GB) · 6 przebiegów treningowych, ~7 h łącznie
 
 ---
